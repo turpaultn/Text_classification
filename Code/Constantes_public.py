@@ -1,10 +1,10 @@
 import os
 import sys
 sys.path.append("../../")
-from utils import get_root_saxo_text_mining_path
+from utils import get_root_project_path
 
 
-SAXO_PROJECT_TEXT_MINING_HOME= get_root_saxo_text_mining_path()
+SAXO_PROJECT_TEXT_MINING_HOME= get_root_project_path()
 
 processed_files_folder = os.path.join(SAXO_PROJECT_TEXT_MINING_HOME, 'Processed_files')
 model_files_folder = os.path.join(SAXO_PROJECT_TEXT_MINING_HOME,

@@ -43,7 +43,7 @@ class ModelCheckpoint(Callback):
         self.period = period
         self.epochs_since_last_save = 0
         self.sf = StoreFiles('model')
-        self.filename, self.save_params = self.sf.fname_to_store(params)
+        self.filename, self.save_params = self.sf.fname_to_store(type=None, **params)
 
         if mode not in ['auto', 'min', 'max']:
             logger.warn('ModelCheckpoint mode %s is unknown, '

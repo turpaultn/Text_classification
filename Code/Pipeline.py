@@ -48,7 +48,7 @@ class TeamPipeline:
 
     def get_word2vec_model(self, text_serie, **kwargs):
         sf = StoreFiles('model')
-        fname = sf.get_fname(type='word2vec', **kwargs)
+        fname = sf.get_fname(type="word2vec", **kwargs)
         if fname is not None:
             model = word2vec.Word2Vec.load(os.path.join(model_files_folder, fname))
 
@@ -62,8 +62,7 @@ class TeamPipeline:
             # size=100, window=5, min_count=100, workers=8, hs=1, sg=1, iter=5)
             logger.info('time running word2vec model : {}'.format(time.time() - t1))
             # if save_model:
-            kwargs["type"] = 'word2vec'
-            fname = sf.fname_and_store(kwargs)
+            fname = sf.fname_and_store(type="word2vec", **kwargs)
             model.save(os.path.join(model_files_folder, fname))
         return model, fname
 
@@ -71,11 +70,15 @@ class TeamPipeline:
         sf = StoreFiles('model')
         fname = sf.get_fname(type="tokenizer", **kwargs)
         if fname is not None:
-            tokenizer = pickle.load(open(fname, 'rb'))
+            try:
+                tokenizer = pickle.load(open(fname, 'rb'))
+            except FileNotFoundError as e:
+                logger.error("trying to reload the file")
+                tokenizer = pickle.load(open(fname, 'rb'))
+
         else:
             logger.info('Tokenizer ... ')
-            kwargs["type"] = "tokenizer"
-            model_filename = sf.fname_and_store(kwargs)
+            model_filename = sf.fname_and_store(type="tokenizer", **kwargs)
             tokenizer = Tokenizer()
             tokenizer.fit_on_texts(text_serie)
             pickle.dump(tokenizer, open(os.path.join(model_files_folder, model_filename), 'wb'))
@@ -93,7 +96,8 @@ class TeamPipeline:
                 result.append(word2vec_model.wv.word_vec(word))
             except KeyError:
                 continue
-
+        # if len(result) == 0:
+        #     result.append(np.zeros(word2vec_model.layer1_size))
         return result
 
     def encode_label(self, labels, categorical=True):
@@ -129,14 +133,19 @@ class TeamPipeline:
             for i in range(0, len(X), batch_size):
                 batch = X[i:(i + batch_size)]
 
+                if batch_size > len(X):
+                    raise RuntimeError("Impossible to compute a batch size greater than the size of data")
                 # TODO: find a way to include last the last batch which has a different size
-                if (i + batch_size) > len(X):
-                    continue
+                # if (i + batch_size) > len(X):
+                #     logger.warn("Taking random rows to complete last batch")
+                #     idx = np.random.randint(len(X), size=(i+batch_size) - len(X))
+                #     batch = pd.concat([X[i:(i + batch_size)], X[idx]], axis=0)
 
                 if type(embedding_model) is gensim.models.word2vec.Word2Vec:
                     batch = np.array(batch.apply(lambda sent: self.sentence_to_word2vec_embedding(embedding_model, sent)))
                 elif type(embedding_model) is keras.preprocessing.text.Tokenizer:
-                    assert batch_size > 1
+                    if batch_size == 1:
+                        raise NotImplementedError("If you do not use word2vec, take a batch size greater than 1")
                     batch = embedding_model.texts_to_sequences(batch)
                 else:
                     # Todo find a way to add new embedding models
@@ -145,6 +154,7 @@ class TeamPipeline:
                 if len_padding is not None:
                     batch = pad_sequences(batch, maxlen=len_padding, dtype=np.float32,
                                           padding='pre', truncating='post')
+
                 if y is not None:
                     batch_labels = y[i:(i + batch_size)]
                     yield batch, batch_labels

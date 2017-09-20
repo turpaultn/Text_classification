@@ -3,7 +3,7 @@ import logging
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 # create logger with 'spam_application'
 logger = logging.getLogger('Saxo_application')
-logger.setLevel(logging.INFO) # remove this line for behaviour without info
+logger.setLevel(logging.DEBUG) # remove this line for behaviour without info
 
 # create file handler which logs even debug messages
 # replace logger by fh in other files to log into the file

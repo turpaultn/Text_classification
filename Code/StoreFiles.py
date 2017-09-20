@@ -40,7 +40,6 @@ class StoreFiles:
 
     def generate_name(self):
         fname = time.strftime("%d%m%y-%H%M%S")
-
         params = self.load_json()
         filenames = [dic[FILENAME] for dic in params]
         while fname+self.extension in filenames:
@@ -58,14 +57,14 @@ class StoreFiles:
                     dic[arg] = val
         return dic
 
-    def fname_and_store(self, params):
-        fname, params = self.fname_to_store(params)
-        self.store_json(params)
+    def fname_and_store(self, type, **kwargs):
+        fname, params_arranged = self.fname_to_store(type, **kwargs)
+        self.store_json(params_arranged)
         return fname
 
-    def fname_to_store(self, params):
-        assert type(params) is dict, "parameters to store must be a dictionary"
-        dic = {self.file_type: params}
+    def fname_to_store(self, type, **kwargs):
+        dic = {self.file_type: kwargs}
+        dic["type"] = type
         dic = self.verif_args(dic)
         params = self.load_json()
         fname = self.generate_name()
@@ -73,11 +72,15 @@ class StoreFiles:
         params.append(dic)
         return fname, params
 
-    def get_fname(self, **kwargs):
+    def get_fname(self, type=None, **kwargs):
         params = self.load_json()
         for dic in params:
             fname = dic.pop(FILENAME)
-            if dic == kwargs:
+            if type is not None:
+                if not dic["type"] == type:
+                    continue
+
+            if dic.get(self.file_type) == kwargs:
                 return fname
         return None
 
@@ -86,14 +89,6 @@ class StoreFiles:
         for dic in params:
             if fname == dic.get(FILENAME):
                 return dic
-
-    def get_fname_by_part_of_params(self, params):
-        models_params = self.load_json()
-        key = self.file_type
-        for dic in models_params:
-            if dic.get(key) == params:
-                return dic.get(FILENAME)
-        return None
 
     def update(self, filename, **kwargs):
         params = self.load_json()
@@ -112,9 +107,16 @@ class StoreFiles:
 
 if __name__ == '__main__':
 
-    sf = StoreFiles('preprocessing')
-    print(sf.get_fname(dataset= "test", test_ratio= 0.2, random_test_samples= False,
-                       lemmatized= False))
+    sf1 = StoreFiles('preprocessing')
+    print(sf1.get_fname(dataset= "test", test_ratio= 0.2, random_test_samples= False,
+                       lemmatized= False) == None)
+
+    sf2 = StoreFiles('model')
+    p = {'count':"bonjour", 'size':100}
+    print(sf2.fname_and_store(type="word2vec", **p))
+
+    sf3 = StoreFiles('model')
+    print(sf3.get_fname(type="word2vec", **p))
     # sf = StoreFiles('model')
     # f = sf.store(layers=[256,128,56], type='LSTM', batch_size=32, optimizer='RMSprop')
     # print(f)
