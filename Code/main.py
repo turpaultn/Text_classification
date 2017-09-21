@@ -243,7 +243,7 @@ if __name__ == '__main__':
     logger.debug('training model ...')
 
     #useless, allow to create a fake csv file, but you should remove this and load your own csv file
-    fake_data_path = os.path.join(processed_files_folder, "Fake_data.csv")
+    fake_data_path = os.path.join(processed_files_folder, "data.csv")
 
     def create_fake_data():
         df = pd.DataFrame([['bonjour je avoir un problème ici', "team1"],
@@ -318,5 +318,5 @@ if __name__ == '__main__':
                                 for W2V in w2v_list:
                                     for BIDIRECTIONAL in bidirectional:
                                         run_model.model(BATCH_SIZE, LAYERS, LEN_PADDING,
-                                                                             LOSS, OPTIMIZER,LAYERS_TYPE, DROPOUT,
-                                                                             W2V, BIDIRECTIONAL)
+                                                        LOSS, OPTIMIZER,LAYERS_TYPE, DROPOUT,
+                                                        W2V, BIDIRECTIONAL)
