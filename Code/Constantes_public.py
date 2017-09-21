@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append("../../")
+sys.path.append("../")
 from utils import get_root_project_path
 
 
