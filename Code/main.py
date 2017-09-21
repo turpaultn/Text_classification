@@ -246,6 +246,7 @@ if __name__ == '__main__':
     fake_data_path = os.path.join(processed_files_folder, "data.csv")
 
     def create_fake_data():
+        logger.debug("creating file")
         df = pd.DataFrame([['bonjour je avoir un problème ici', "team1"],
                            ['nous aller le réosudre de ici là', "team2"],
                            ["nous vouloir améliorer", "team1"],
@@ -261,6 +262,7 @@ if __name__ == '__main__':
                             " de mot est inférieur à la taille maximum qu'on alloue à une phrase", "team3"],
                            ["encore une", "team2"]],
                           columns=["Text", "Team"])
+        os.makedirs(os.path.dirname(fake_data_path), exist_ok=True)
         df.to_csv(fake_data_path, encoding='latin1')
 
     def get_data():

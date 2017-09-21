@@ -35,6 +35,7 @@ class StoreFiles:
         return params
 
     def store_json(self, params):
+        os.makedirs(os.path.dirname(self.filename_json), exist_ok=True)
         with open(self.filename_json, 'w') as f:
             json.dump(params, f, indent=4)
 
