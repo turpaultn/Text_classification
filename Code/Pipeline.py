@@ -23,6 +23,7 @@ class TeamPipeline:
     def __init__(self):
         pass
 
+    # Remove labels that are not enough represented
     @staticmethod
     def drop_unrepresented_labels(df, label_col, percentage_drop=0.1):
         categories_counts = pd.value_counts(df[label_col])
@@ -35,6 +36,7 @@ class TeamPipeline:
         result = result.reset_index(drop=True)
         return result
 
+    # Method only to remove Capital letters and split the text by every non letter
     @staticmethod
     def split_and_lower(text):
         cleaned_sentence = []
@@ -46,6 +48,7 @@ class TeamPipeline:
                 cleaned_sentence.append(word)
         return cleaned_sentence
 
+    # apply Word2vec Model by gensim
     def get_word2vec_model(self, text_serie, **kwargs):
         sf = StoreFiles('model')
         fname = sf.get_fname(type="word2vec", **kwargs)
@@ -66,6 +69,7 @@ class TeamPipeline:
             model.save(os.path.join(model_files_folder, fname))
         return model, fname
 
+    # method which allows to use an embedding layer directly in the model
     def get_tokenizer(self, text_serie, **kwargs):
         sf = StoreFiles('model')
         fname = sf.get_fname(type="tokenizer", **kwargs)
@@ -86,6 +90,7 @@ class TeamPipeline:
 
         return tokenizer, fname
 
+    # Transform text to word embeddings to use it in the model
     def sentence_to_word2vec_embedding(self, word2vec_model, sentence):
         result = []
         if type(sentence) is float:
@@ -100,6 +105,7 @@ class TeamPipeline:
         #     result.append(np.zeros(word2vec_model.layer1_size))
         return result
 
+    # encode label, for example if we have 8 teams, and we want to change the team 2 (2) -> becomes (0,0,1,0,0,0,0,0)
     def encode_label(self, labels, categorical=True):
         label_encoder = LabelEncoder()
         labels = label_encoder.fit_transform(labels)
@@ -107,6 +113,7 @@ class TeamPipeline:
             labels = to_categorical(labels)
         return labels, label_encoder
 
+    # allow to separate in validation and training set
     def train_valid_split(self, X, y, test_size=0.2, shuffle=True):
         assert len(X) == len(y), 'X and y in train valid split must have same length'
         if shuffle:
@@ -121,6 +128,7 @@ class TeamPipeline:
         logger.info("length train: {}  and length valid: {}".format(len(X_train), len(X_valid)))
         return (X_train, y_train), (X_valid, y_valid)
 
+    # take text input data in a dataframe, return batches of vectors
     @threadsafe_generator
     def data_to_batch_generator(self, X, y=None, shuffle=False, embedding_model=None, batch_size=32, len_padding=100):
         while True:

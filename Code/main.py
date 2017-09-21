@@ -14,7 +14,7 @@ import tensorflow as tf
 
 from Log import logger
 
-
+# printing
 VERBOSE = 0
 # Data
 PERCENTAGE_UNREPRESENTED_LABEL = 0.
@@ -176,9 +176,11 @@ class RunModel:
             model.add(Embedding(len(embedding_model.word_index), SIZE_W2VEC,
                                 batch_input_shape=(seq_shape[0], seq_shape[1])))
 
+
+        ### (batch_size, len_padding, SIZE_W2VEC)
         model.add(Dropout(dropout, noise_shape=(seq_shape[0], 1, seq_shape[2]),
                           batch_input_shape=seq_shape))
-
+        ### (batch_size, len_padding, SIZE_W2VEC)
         def add_recurrent_layer(model, bidirectional, return_sequences):
             if bidirectional:
                 model.add(Bidirectional(recurrent_layer(layer_size, batch_input_shape=seq_shape,
@@ -186,10 +188,12 @@ class RunModel:
             else:
                 model.add(recurrent_layer(layer_size, batch_input_shape=seq_shape,
                                           return_sequences=return_sequences))
+        ### (batch_size, len_padding, SIZE_W2VEC)
 
         for layer_size in layers[:-1]:
             add_recurrent_layer(model, bidirectional, return_sequences=True)
 
+        ### (batch_size, SIZE_W2VEC)
         layer_size = layers[-1]
         add_recurrent_layer(model, bidirectional, return_sequences=False)
 
