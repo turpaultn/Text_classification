@@ -1,26 +1,26 @@
 # Text_classification
 
-This code has been done during and apprenticeship at Atos.
+This code has been done during an apprenticeship at Atos.
 
 
 # Classify some texts given a label
 
-This example hase been tried on real french texts.
+This example has been tried on "real" french texts.
 The real use case was: 
     - Texts represented problems or improvements that should be done on a software
-    - Labels were team that really solved the problem
+    - The label is the team which solved the problem
     - + 700 teams were represented and 300 000 texts were annotated.
     - Results of 47.12% accuracy to find the right team to the texts.
     
 More explanations on the "presentation" folder.
 
-To run: 
+#### To run: 
     - Launch main.py in Code
 
 Some false data has been done to give you an idea of what is required to launch the code.
 
 ## Architecture:
-    - Give all your texts and label
+    - Given a file with texts and labels
     - Split the dataset in a training set (80%) and a testing set (20%)
     - In the training set, split the dataset in training set and validation set (20%)
     
